@@ -6,9 +6,10 @@ import "izitoast/dist/css/iziToast.min.css";
 
 const calendarSelector = document.getElementById("datetime-picker");
 const btn = document.getElementById("main-btn");
-const timerDisplay = document.querySelector("body > div.timer")
+const timerDisplay = document.querySelector("body > div.timer");
 
 let userSelectedDate;
+let timerInterval;
 
 function convertMs(ms) {
   const second = 1000;
@@ -35,6 +36,10 @@ function updateTimer() {
     clearInterval(timerInterval);
     timerDisplay.textContent = "00:00:00:00";
     console.log("Countdown finished!");
+    iziToast.show({
+      message: "Countdown finished!",
+    });
+    calendarSelector.disabled = false; 
     return;
   }
   const { days, hours, minutes, seconds } = convertMs(timeDifference);
@@ -53,30 +58,10 @@ btn.addEventListener("click", () => {
   }
   const timeDifference = userSelectedDate.getTime() - now.getTime();
 
-  function updateTimer() {
-    const now = new Date();
-    if (!userSelectedDate) {
-      console.error("User selected date is not defined.");
-      return;
-    }
-    const timeLeft = userSelectedDate.getTime() - now.getTime();
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      iziToast.show({
-        message: "Countdown finished!"
-      });;
-      return;
-    }
-    const { days, hours, minutes, seconds } = convertMs(timeLeft);
-    const formattedDays = String(days).padStart(2, "0");
-    const formattedHours = String(hours).padStart(2, "0");
-    const formattedMinutes = String(minutes).padStart(2, "0");
-    const formattedSeconds = String(seconds).padStart(2, "0");
-    timerDisplay.textContent = `${formattedDays}:${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-  }
-
   updateTimer();
-  const timerInterval = setInterval(updateTimer, 1000);
+  timerInterval = setInterval(updateTimer, 1000);
+
+  calendarSelector.disabled = true; 
 });
 
 flatpickr("#datetime-picker", {
@@ -90,8 +75,8 @@ flatpickr("#datetime-picker", {
       btn.disabled = false;
     } else {
       iziToast.show({
-        message: "Please choose a date in the future"
-      });;
+        message: "Please choose a date in the future",
+      });
       btn.disabled = true;
     }
   },

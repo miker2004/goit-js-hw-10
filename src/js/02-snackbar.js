@@ -5,11 +5,17 @@ const userDelayInput = document.querySelector("body > form > label > input[type=
 const notificationBTN = document.getElementById("main-batton");
 const goodCheckbox = document.querySelector("body > form > fieldset > label:nth-child(2) > input[type=radio]");
 
-const isItWorking = () => {
+let currentTaskId = 0;
+
+const isItWorking = (taskId) => {
     const delay = userDelayInput.value;
     
     return new Promise((resolve, reject) => {
         setTimeout(() => {
+            if (taskId !== currentTaskId) {
+                return;
+            }
+
             const isChecked = goodCheckbox.checked;
             
             if (!isChecked) {
@@ -23,16 +29,21 @@ const isItWorking = () => {
 
 notificationBTN.addEventListener('click', (event) => {
     event.preventDefault();
-    
-    isItWorking()
+    const taskId = ++currentTaskId;
+
+    isItWorking(taskId)
         .then((message) => {
-            iziToast.show({
-                message: message,
-            });
+            if (taskId === currentTaskId) {
+                iziToast.show({
+                    message: message,
+                });
+            }
         })
         .catch((error) => {
-            iziToast.show({
-                message: error,
-            });
+            if (taskId === currentTaskId) {
+                iziToast.show({
+                    message: error,
+                });
+            }
         });
 });
